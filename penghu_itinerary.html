@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 澎湖四天三夜行程</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:   #1a6fa8;
+    --blue-lt:#e8f4fc;
+    --coral:  #e8603c;
+    --teal:   #0d9488;
+    --purple: #7c3aed;
+    --amber:  #d97706;
+    --gray:   #6b7280;
+    --bg:     #f0f6fb;
+    --card:   #ffffff;
+    --radius: 12px;
+  }
+
+  body {
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: #1f2937;
+    font-size: 16px;
+    line-height: 1.5;
+    padding-bottom: 32px;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #1a6fa8 0%, #0d9488 100%);
+    color: #fff;
+    padding: 24px 16px 20px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: .5px; }
+  header .sub { font-size: .9rem; opacity: .88; margin-top: 6px; }
+  header .hotel-tag {
+    display: inline-block;
+    margin-top: 10px;
+    background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: .82rem;
+  }
+
+  /* ── Day nav ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    border-bottom: 2px solid var(--blue-lt);
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 4px;
+    padding: 8px 12px;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    flex: 0 0 auto;
+    text-decoration: none;
+    color: var(--blue);
+    font-size: .82rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--blue);
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+  }
+  nav a:hover, nav a:active { background: var(--blue); color: #fff; }
+
+  /* ── Alert ── */
+  .alert {
+    margin: 14px 12px;
+    background: #fff7ed;
+    border: 1.5px solid #f97316;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .alert-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    background: #fff7ed;
+  }
+  .alert-header span { font-weight: 700; font-size: .95rem; color: #c2410c; }
+  .alert-header .arrow { font-size: .8rem; color: #c2410c; transition: transform .25s; }
+  .alert-header.open .arrow { transform: rotate(180deg); }
+  .alert-body {
+    display: none;
+    padding: 0 16px 14px;
+    font-size: .88rem;
+    color: #7c2d12;
+    line-height: 1.7;
+  }
+  .alert-body.open { display: block; }
+  .alert-body ul { padding-left: 18px; margin-top: 6px; }
+  .alert-body li { margin-bottom: 4px; }
+
+  /* ── Day section ── */
+  .day-section { margin: 14px 12px 0; }
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  .day-header .day-num {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(0,0,0,.18);
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .day-header .day-info { flex: 1; }
+  .day-header .day-date { font-size: 1rem; font-weight: 700; color: #fff; }
+  .day-header .day-theme { font-size: .82rem; color: rgba(255,255,255,.85); margin-top: 2px; }
+  .day-header .toggle-icon { color: rgba(255,255,255,.8); font-size: .85rem; transition: transform .25s; }
+  .day-header.open .toggle-icon { transform: rotate(180deg); }
+
+  .d1 .day-header { background: linear-gradient(90deg, #1a6fa8, #2563eb); }
+  .d2 .day-header { background: linear-gradient(90deg, #0d9488, #059669); }
+  .d3 .day-header { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+  .d4 .day-header { background: linear-gradient(90deg, #d97706, #f59e0b); }
+
+  .day-body {
+    background: var(--card);
+    border: 1.5px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden;
+  }
+  .day-body.closed { display: none; }
+
+  /* ── Activity card ── */
+  .activity {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    align-items: flex-start;
+  }
+  .activity:last-child { border-bottom: none; }
+
+  .act-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 38px;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  .act-content { flex: 1; min-width: 0; }
+  .act-time {
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--gray);
+    letter-spacing: .3px;
+    margin-bottom: 3px;
+  }
+  .act-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 3px;
+  }
+  .act-desc {
+    font-size: .85rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .map-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    background: var(--blue-lt);
+    color: var(--blue);
+    border: 1.5px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: .8rem;
+    font-weight: 600;
+    transition: background .15s;
+  }
+  .map-btn:hover, .map-btn:active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .map-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* special badges */
+  .badge {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-hot  { background: #fee2e2; color: #b91c1c; }
+  .badge-star { background: #fef9c3; color: #a16207; }
+  .badge-cool { background: #dbeafe; color: #1d4ed8; }
+  .badge-fire { background: #fce7f3; color: #9d174d; }
+
+  /* tips row */
+  .tip-row {
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    padding: 8px 14px;
+    margin: 4px 0 8px;
+    border-radius: 0 6px 6px 0;
+    font-size: .82rem;
+    color: #166534;
+    line-height: 1.6;
+  }
+
+  /* ── Footer ── */
+  footer {
+    margin: 20px 12px 0;
+    text-align: center;
+    font-size: .78rem;
+    color: var(--gray);
+    padding: 12px;
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid #e5e7eb;
+  }
+  footer a { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <h1>🏝 2026 澎湖四天三夜行程</h1>
+  <div class="sub">5月23日（六）→ 5月26日（二）· 花火節期間</div>
+  <div class="hotel-tag">🏨 全程 澎湖福朋喜來登酒店</div>
+</header>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a href="#day1">Day 1 週六</a>
+  <a href="#day2">Day 2 週日</a>
+  <a href="#day3">Day 3 週一</a>
+  <a href="#day4">Day 4 週二</a>
+</nav>
+
+<!-- ══ ALERT ══ -->
+<div class="alert">
+  <div class="alert-header" onclick="toggleAlert(this)">
+    <span>⚠️ 行前緊急提醒（必讀）</span>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="alert-body">
+    <ul>
+      <li>🚗 <strong>租車請即刻預訂</strong>——花火節期間往往提前數月售罄，確認機票當下立即訂車</li>
+      <li>🍖 <strong>享燒烤需提前訂位</strong>——人氣破千評論，花火節同期一位難求</li>
+      <li>🚢 <strong>晶翔號夜釣船班</strong>——建議提前預訂，不確定是否可散客臨時登船</li>
+      <li>🎇 <strong>花火節時間</strong>——5月25日（週一）21:00，觀音亭主場地 18:00 起交通管制</li>
+      <li>🧴 防曬乳 SPF50+、補充水分，降落第一件事確認租車冷氣製冷力</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ DAY 1 ══ -->
+<div class="day-section d1" id="day1">
+  <div class="day-header open" onclick="toggleDay(this)">
+    <div class="day-num">1</div>
+    <div class="day-info">
+      <div class="day-date">5月23日（六）</div>
+      <div class="day-theme">時空轉換 · 眷村人文 · 夜海漁火</div>
+    </div>
+    <span class="toggle-icon">▲</span>
+  </div>
+  <div class="day-body">
+
+    <div class="activity">
+      <div class="act-icon">✈️</div>
+      <div class="act-content">
+        <div class="act-time">10:55 → 11:55</div>
+        <div class="act-name">航班 AE367 抵達澎湖</div>
+        <div class="act-desc">台北松山（TSA）飛往馬公（MZG），歷史準點率 93%</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖馬公機場" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          馬公機場地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🚗</div>
+      <div class="act-content">
+        <div class="act-time">12:00 → 12:45</div>
+        <div class="act-name">取車 & 行李寄放</div>
+        <div class="act-desc">機場辦理租車取車手續，確認冷氣製冷力，前往喜來登寄放行李</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖福朋喜來登酒店" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          福朋喜來登地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🍜</div>
+      <div class="act-content">
+        <div class="act-time">13:00 → 14:30</div>
+        <div class="act-name">午餐｜海城上湯鮮魚粥飯麵擔<span class="badge badge-star">★ 4.8</span></div>
+        <div class="act-desc">馬公市三多路。冷氣舒適，主打鮮魚湯、海鮮粥，洗塵暖胃首選</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=海城上湯鮮魚粥飯麵擔+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🏨</div>
+      <div class="act-content">
+        <div class="act-time">14:30 → 15:30</div>
+        <div class="act-name">Check-in & 休整</div>
+        <div class="act-desc">辦理入住，強制休息一小時，適應海島氣候並補充防曬與水分</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖福朋喜來登酒店" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          酒店地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🏛</div>
+      <div class="act-content">
+        <div class="act-time">15:45 → 17:30</div>
+        <div class="act-name">篤行十村<span class="badge badge-cool">日式眷村</span></div>
+        <div class="act-desc">全台最古老日式軍官眷村，含潘安邦・張雨生紀念館。建築群陰影遮蔽充足，人文氛圍強烈</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=篤行十村+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">⛩</div>
+      <div class="act-content">
+        <div class="act-time">（接上）</div>
+        <div class="act-name">馬公天后宮</div>
+        <div class="act-desc">全台最古老媽祖廟（1604年），步行可達，逾三百年木造建築藝術</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=馬公天后宮+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🍧</div>
+      <div class="act-content">
+        <div class="act-time">17:30 → 18:30</div>
+        <div class="act-name">玉冠嫩仙草 澎湖總店<span class="badge badge-star">★ 4.4 · 8千則</span></div>
+        <div class="act-desc">馬公市民福路。澎湖必吃消暑甜品，<strong>僅外帶</strong>，建議回車上或遊客中心冷氣區享用</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=玉冠嫩仙草+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🚢</div>
+      <div class="act-content">
+        <div class="act-time">18:30 → 21:00</div>
+        <div class="act-name">晶翔號 夜釣小管<span class="badge badge-star">★ 4.8</span></div>
+        <div class="act-desc">南海遊客中心報到登船。平穩船甲板操竿，品嚐現切小管生魚片，無論釣獲皆供應鮮甜小管麵線</div>
+        <div class="tip-row">📍 報到地點：南海遊客中心碼頭 · 由喜來登步行可達</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖南海遊客中心" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          南海遊客中心地圖
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ DAY 2 ══ -->
+<div class="day-section d2" id="day2">
+  <div class="day-header open" onclick="toggleDay(this)">
+    <div class="day-num">2</div>
+    <div class="day-info">
+      <div class="day-date">5月24日（日）</div>
+      <div class="day-theme">北環地質 · 傳統聚落深度探索</div>
+    </div>
+    <span class="toggle-icon">▲</span>
+  </div>
+  <div class="day-body">
+
+    <div class="activity">
+      <div class="act-icon">🍳</div>
+      <div class="act-content">
+        <div class="act-time">08:30 → 09:30</div>
+        <div class="act-name">喜來登自助早餐</div>
+        <div class="act-desc">補充能量，為全日北環行程做好準備</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖福朋喜來登酒店" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          酒店地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🌳</div>
+      <div class="act-content">
+        <div class="act-time">09:30 → 10:30</div>
+        <div class="act-name">通梁古榕<span class="badge badge-cool">天然遮陽</span></div>
+        <div class="act-desc">車程約30分。三百年白榕氣根形成巨大天然綠傘，可在樹下享用仙人掌冰，完全無曝曬</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=通梁古榕+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🌉</div>
+      <div class="act-content">
+        <div class="act-time">（接上）</div>
+        <div class="act-name">澎湖跨海大橋</div>
+        <div class="act-desc">全長2,494公尺。於白沙端拱門停車場快速合影後驅車穿越海峽</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖跨海大橋" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🐋</div>
+      <div class="act-content">
+        <div class="act-time">10:45 → 12:15</div>
+        <div class="act-name">小門鯨魚洞 & 地質探索館<span class="badge badge-cool">冷氣館</span></div>
+        <div class="act-desc">車程約15分。觀賞鯨魚造型海蝕玄武岩拱門後，<strong>立即入館</strong>——館內強力冷氣＋動態模型，是北環最重要的降溫站</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=小門鯨魚洞+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          鯨魚洞地圖
+        </a>
+        &nbsp;
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=小門地質探索館+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          地質館地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🍜</div>
+      <div class="act-content">
+        <div class="act-time">12:15 → 13:15</div>
+        <div class="act-name">午餐｜小萍的店<span class="badge badge-star">★ 4.2 · 2800則</span></div>
+        <div class="act-desc">小門村內。道地鮮甜小管麵線、海膽沙西米，北環必吃人氣店</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=小萍的店+澎湖西嶼小門" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🏘</div>
+      <div class="act-content">
+        <div class="act-time">13:30 → 14:45</div>
+        <div class="act-name">二崁聚落</div>
+        <div class="act-desc">車程約15分。全台首個傳統聚落保存區，咾咕石與玄武岩古厝，巷弄風洞涼爽，可品嚐道地杏仁茶</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=二崁聚落+澎湖西嶼" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🪨</div>
+      <div class="act-content">
+        <div class="act-time">15:00 → 15:30</div>
+        <div class="act-name">大菓葉玄武岩</div>
+        <div class="act-desc">車程約5分。壯麗六角柱狀節理，<strong>停車場到岩壁距離極近</strong>，下車即震撼，下午光線最佳</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=大菓葉玄武岩+澎湖西嶼" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🏨</div>
+      <div class="act-content">
+        <div class="act-time">15:30 → 18:00</div>
+        <div class="act-name">返回酒店 · 梳洗休息</div>
+        <div class="act-desc">驅車返回馬公，充分休息為晚宴備體力</div>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🦞</div>
+      <div class="act-content">
+        <div class="act-time">18:00 → 20:00</div>
+        <div class="act-name">晚宴｜澎漁宴<span class="badge badge-star">★ 4.4</span></div>
+        <div class="act-desc">馬公市海埔路。米其林等級主廚掌廚，冷氣舒適，海膽仙人掌炒飯為招牌，精緻在地海鮮合菜</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎漁宴+澎湖馬公" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ DAY 3 ══ -->
+<div class="day-section d3" id="day3">
+  <div class="day-header open" onclick="toggleDay(this)">
+    <div class="day-num">3</div>
+    <div class="day-info">
+      <div class="day-date">5月25日（一）🎇 花火節之夜</div>
+      <div class="day-theme">室內知性 · 潮汐奇觀 · 七龍珠Z花火高潮</div>
+    </div>
+    <span class="toggle-icon">▲</span>
+  </div>
+  <div class="day-body">
+
+    <div class="activity">
+      <div class="act-icon">🍳</div>
+      <div class="act-content">
+        <div class="act-time">09:00 → 10:00</div>
+        <div class="act-name">喜來登自助早餐</div>
+        <div class="act-desc">今晚花火節，日間保留體力，全程安排低耗能冷氣景點</div>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🏛</div>
+      <div class="act-content">
+        <div class="act-time">10:15 → 12:15</div>
+        <div class="act-name">澎湖生活博物館<span class="badge badge-cool">全空調</span></div>
+        <div class="act-desc">車程約10分，設有大型免費停車場。系統展示澎湖海洋文化、祭祀科儀與常民生活史，知性深度體驗</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖生活博物館" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🍽</div>
+      <div class="act-content">
+        <div class="act-time">12:30 → 14:00</div>
+        <div class="act-name">午餐｜在地海鮮餐館</div>
+        <div class="act-desc">可選「清香海鮮店」或「珍海味活海鮮」，冷氣舒適、高評價中式合菜</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=清香海鮮+澎湖馬公" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          清香海鮮地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🐠</div>
+      <div class="act-content">
+        <div class="act-time">14:15 → 15:30</div>
+        <div class="act-name">澎湖丑丑館<span class="badge badge-cool">冷氣免費</span></div>
+        <div class="act-desc">車程約10分，遊客中心旁大型停車場。小丑魚主題生技館，免費入場，夢幻裝潢，消磨午後最炎熱時段</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖丑丑館" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🌊</div>
+      <div class="act-content">
+        <div class="act-time">16:00 → 17:30</div>
+        <div class="act-name">奎壁山 摩西分海</div>
+        <div class="act-desc">車程約25分，湖西鄉。退潮時S型玄武岩步道浮現連接赤嶼。<strong>建議在岸邊高處景觀台觀賞即可</strong>，無須走到對岸，保留體力</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=奎壁山摩西分海+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🔥</div>
+      <div class="act-content">
+        <div class="act-time">18:00 → 20:00</div>
+        <div class="act-name">晚餐｜澎湖享燒烤 Enjoy BBQ<span class="badge badge-hot">破千評論</span></div>
+        <div class="act-desc">馬公市東文澳9-53號。強效冷氣無煙系統，自有停車場，鮮蚵・小管・海魚吃到飽，最適合自駕族</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖享燒烤+Enjoy+BBQ" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          查看地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🎇</div>
+      <div class="act-content">
+        <div class="act-time">20:15 → 21:30</div>
+        <div class="act-name">2026 花火節｜七龍珠Z 無人機燈光秀<span class="badge badge-fire">21:00 開始</span></div>
+        <div class="act-desc">前往<strong>救國團青年活動中心（澎湖菊島行旅）</strong>周邊停車，避開觀音亭擁擠管制區，以高地視角從容欣賞700台無人機＋震撼煙火，結束後迅速取車</div>
+        <div class="tip-row">⚠️ 觀音亭主場地 18:00 起交通管制，建議改此高地替代觀賞點</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖菊島行旅+救國團" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          觀賞點地圖
+        </a>
+        &nbsp;
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=觀音亭休閒園區+澎湖" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          觀音亭地圖
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ DAY 4 ══ -->
+<div class="day-section d4" id="day4">
+  <div class="day-header open" onclick="toggleDay(this)">
+    <div class="day-num">4</div>
+    <div class="day-info">
+      <div class="day-date">5月26日（二）</div>
+      <div class="day-theme">從容撤離 · 圓滿歸程</div>
+    </div>
+    <span class="toggle-icon">▲</span>
+  </div>
+  <div class="day-body">
+
+    <div class="activity">
+      <div class="act-icon">🍳</div>
+      <div class="act-content">
+        <div class="act-time">07:30 → 08:15</div>
+        <div class="act-name">最後早餐（輕食為主）</div>
+        <div class="act-desc">喜來登自助早餐，提早出發以輕食為主</div>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🧳</div>
+      <div class="act-content">
+        <div class="act-time">08:15 → 08:45</div>
+        <div class="act-name">Check-out & 行李打包</div>
+        <div class="act-desc">完成退房。含液體伴手禮（干貝醬/XO醬）務必放<strong>托運行李</strong>，避免安檢沒收</div>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">🚗</div>
+      <div class="act-content">
+        <div class="act-time">08:45 → 09:15</div>
+        <div class="act-name">還車 & 機場報到</div>
+        <div class="act-desc">車程約20分。機場歸還租車，辦理 AE366 行李托運與登機手續，08:30前完成報到</div>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=澎湖馬公機場" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          馬公機場地圖
+        </a>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="act-icon">✈️</div>
+      <div class="act-content">
+        <div class="act-time">09:40 → 10:31</div>
+        <div class="act-name">航班 AE366 返回台北</div>
+        <div class="act-desc">澎湖馬公（MZG）→ 台北松山（TSA），四天三夜圓滿結束</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <strong>住宿全程</strong>：澎湖福朋喜來登酒店 · 馬公市新店路197號<br>
+  <a href="https://www.google.com/maps/search/?api=1&query=澎湖福朋喜來登酒店" target="_blank">查看酒店地圖</a>
+  &nbsp;·&nbsp;
+  <a href="https://www.penghu-nsa.gov.tw" target="_blank">澎湖國家風景區官網</a><br><br>
+  <span style="color:#9ca3af">本頁資訊僅供參考，營業時間與現場狀況以各店家公告為準</span>
+</footer>
+
+<script>
+  function toggleAlert(header) {
+    header.classList.toggle('open');
+    header.nextElementSibling.classList.toggle('open');
+  }
+
+  function toggleDay(header) {
+    header.classList.toggle('open');
+    const body = header.nextElementSibling;
+    body.classList.toggle('closed');
+  }
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        const offset = 56; // nav height
+        const top = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+</body>
+</html>
